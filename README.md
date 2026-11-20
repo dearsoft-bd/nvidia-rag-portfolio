@@ -46,6 +46,18 @@ The program loads `.env` automatically when the matching shell variables are not
 already set. The answer is printed first, followed by the source passages used to
 produce it.
 
+## API preflight
+
+After adding a real key and a current model ID to `.env`, run:
+
+```bash
+python3 api_check.py
+```
+
+The checker reports the model, round-trip latency and a short response preview
+without printing the API key. The test suite also uses a local mock OpenAI-compatible
+server, so request and response handling can be verified without external credentials.
+
 ## Add your own documents
 
 Put `.md` or `.txt` files inside `docs/`. Re-run the command after changing the documents.

@@ -20,3 +20,9 @@ passages to the configured NVIDIA chat-completion endpoint.
 If the API key or model is missing, the application stops before making a network
 request. If the API returns an HTTP error, the response body is included in the
 command-line error so the operator can diagnose authentication or model problems.
+
+## Preflight
+
+Run `python3 api_check.py` after configuring credentials. It performs one minimal
+chat-completion request and reports whether the configured endpoint, key and model
+can successfully communicate. It never prints the secret key.
