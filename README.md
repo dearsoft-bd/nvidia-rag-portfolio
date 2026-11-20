@@ -4,6 +4,16 @@ DS-Pythone is a local-first developer agent for searching project documents, che
 retrieval quality and producing cited answers through an NVIDIA-hosted model. It is
 buildable with Python's standard library and a reproducible evaluation set.
 
+## Author and project context
+
+Created by **Khandaker Readul Islam**, founder of **DearSoft** in Dhaka, Bangladesh.
+The wider DS-Pythone ecosystem includes:
+
+- [DS-Pythone showcase](https://github.com/dearsoft-bd/ds-pythone-showcase) — Python e-commerce CMS.
+- [DS-Pythone core](https://github.com/dearsoft-bd/ds-pythone-core) — reusable Python foundations.
+- [DearSoft SaaS](https://github.com/dearsoft-bd/DearSoft-SaaS) — hosted DS-Pythone, DS-Panel and ERP platform.
+- [DS-Panel](https://github.com/dearsoft-bd/ds-panel) — open-source Python web hosting control panel.
+
 ## What you can demonstrate to an internship recruiter
 
 - Python source-code organization
