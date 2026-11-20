@@ -43,6 +43,11 @@ DEFAULT_CASES = (
         "docs/roadmap.md",
         "page",
     ),
+    EvaluationCase(
+        "What happens when the API key is missing?",
+        "docs/operations.md",
+        "stops",
+    ),
 )
 
 
