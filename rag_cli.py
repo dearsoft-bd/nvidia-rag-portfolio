@@ -30,6 +30,27 @@ def tokenize(text: str) -> list[str]:
     return [token.lower() for token in TOKEN_RE.findall(text)]
 
 
+def load_dotenv(path: Path = ROOT / ".env") -> None:
+    """Load simple KEY=VALUE entries without overriding the real environment."""
+    if not path.is_file():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line.removeprefix("export ").strip()
+        key, separator, value = line.partition("=")
+        key = key.strip()
+        if not separator or not key:
+            continue
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        os.environ.setdefault(key, value)
+
+
 def load_chunks(docs_dir: Path) -> list[Chunk]:
     chunks: list[Chunk] = []
     for path in sorted(docs_dir.rglob("*")):
@@ -172,6 +193,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    load_dotenv()
     chunks = load_chunks(ROOT / "docs")
     matches = retrieve(chunks, args.question, max(1, args.top_k))
 

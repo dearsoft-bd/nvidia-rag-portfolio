@@ -1,8 +1,8 @@
-# NVIDIA RAG Starter
+# NVIDIA RAG Portfolio Starter
 
-A dependency-free starter project for the NVIDIA DLI **Building RAG Agents With LLMs** learning path.
-It retrieves relevant passages from local Markdown/text files and asks an NVIDIA-hosted
-chat-completion model to answer with numbered citations.
+A dependency-free RAG project for the NVIDIA DLI **Building RAG Agents With LLMs**
+learning path. It retrieves relevant passages from local Markdown/text files and asks
+an NVIDIA-hosted chat-completion model to answer with numbered citations.
 
 ## What you can demonstrate to an internship recruiter
 
@@ -10,8 +10,20 @@ chat-completion model to answer with numbered citations.
 - Local document ingestion and retrieval
 - NVIDIA NIM API integration
 - Prompt construction with source grounding
-- Basic automated tests
+- Reproducible retrieval evaluation
+- Automated tests
 - Clear setup instructions and reproducible evidence
+
+## Architecture
+
+```text
+docs/*.md
+   |
+   v
+paragraph chunks -> BM25-style lexical ranking -> grounded prompt
+                                                -> NVIDIA NIM API
+                                                -> cited answer + sources
+```
 
 ## Quick start
 
@@ -27,14 +39,12 @@ python3 rag_cli.py --demo --question "How does this project reduce unsupported a
 cp .env.example .env
 # Edit .env with your own key and a model currently offered in the API Catalog.
 
-set -a
-source .env
-set +a
-
 python3 rag_cli.py --question "How does this project reduce unsupported answers?"
 ```
 
-The answer is printed first, followed by the source passages used to produce it.
+The program loads `.env` automatically when the matching shell variables are not
+already set. The answer is printed first, followed by the source passages used to
+produce it.
 
 ## Add your own documents
 
@@ -45,13 +55,38 @@ Never add passwords, private documents, or API keys to the repository.
 
 ```bash
 python3 -m unittest discover -s tests -v
+python3 evaluate.py
 ```
+
+The evaluation reports hit rate at K, mean reciprocal rank and top-result term
+accuracy. It exits with a non-zero status when retrieval quality drops below the
+configured baseline.
+
+## GPU PC workflow
+
+The project is also available on the Ubuntu GPU PC at:
+
+```text
+/home/dearsoft/projects/nvidia-rag
+```
+
+Connect from the development laptop with:
+
+```bash
+ssh gpu-pc
+cd ~/projects/nvidia-rag
+python3 -m unittest discover -s tests -v
+python3 evaluate.py
+```
+
+The GeForce GT 610 is suitable for desktop graphics, not modern local LLM
+inference. Use NVIDIA's remote API for model calls or a newer GPU when available.
 
 ## Suggested project upgrades
 
 1. Ingest PDFs and preserve page numbers as citation metadata.
-2. Add an embedding-based retriever and compare it with the keyword baseline.
-3. Add an evaluation set with expected sources and track retrieval accuracy.
+2. Add an embedding-based retriever and compare it with this keyword baseline.
+3. Expand the evaluation set and record retrieval metrics for every change.
 4. Build a small web interface.
 5. Record a two-minute demo and link it from your resume.
 
