@@ -1,8 +1,8 @@
-# NVIDIA RAG Portfolio Starter
+# DS-Pythone
 
-A dependency-free RAG project for the NVIDIA DLI **Building RAG Agents With LLMs**
-learning path. It retrieves relevant passages from local Markdown/text files and asks
-an NVIDIA-hosted chat-completion model to answer with numbered citations.
+DS-Pythone is a local-first developer agent for searching project documents, checking
+retrieval quality and producing cited answers through an NVIDIA-hosted model. It is
+buildable with Python's standard library and a reproducible evaluation set.
 
 ## What you can demonstrate to an internship recruiter
 
@@ -48,6 +48,24 @@ python3 rag_cli.py --question "How does this project reduce unsupported answers?
 The program loads `.env` automatically when the matching shell variables are not
 already set. The answer is printed first, followed by the source passages used to
 produce it.
+
+## Use DS-Pythone
+
+```bash
+python3 ds_pythone.py
+```
+
+Useful commands:
+
+```text
+/status
+/search How does retrieval work?
+/metrics
+/ask How can unsupported answers be reduced?
+```
+
+Without an NVIDIA API key, run `/search`, `/read` and `/metrics`; `/ask` reports that
+the model is not configured. The agent has no arbitrary shell or write tools.
 
 ## API preflight
 
