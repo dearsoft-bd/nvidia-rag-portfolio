@@ -25,6 +25,8 @@ paragraph chunks -> BM25-style lexical ranking -> grounded prompt
                                                 -> cited answer + sources
 ```
 
+![NVIDIA RAG Lab interface](docs/screenshot.png)
+
 ## Quick start
 
 Requirements: Python 3.10 or newer and an NVIDIA API key from the NVIDIA API Catalog.
