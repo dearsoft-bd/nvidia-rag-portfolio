@@ -58,6 +58,17 @@ The checker reports the model, round-trip latency and a short response preview
 without printing the API key. The test suite also uses a local mock OpenAI-compatible
 server, so request and response handling can be verified without external credentials.
 
+## Web interface
+
+Start the local-only interface:
+
+```bash
+python3 webapp.py
+```
+
+Open `http://127.0.0.1:8765`. Retrieval search and evaluation metrics work without
+an API key. The “Ask NVIDIA” action requires a configured key and model.
+
 ## Add your own documents
 
 Put `.md` or `.txt` files inside `docs/`. Re-run the command after changing the documents.

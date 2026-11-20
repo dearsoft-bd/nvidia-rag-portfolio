@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NVIDIA RAG Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f0c;
+      --panel: #131a14;
+      --panel-2: #1a231b;
+      --text: #f4f7f2;
+      --muted: #aab6a9;
+      --green: #76b900;
+      --green-dark: #4f7e00;
+      --border: #2a382b;
+      --danger: #ffb4a9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(118,185,0,.15), transparent 35rem),
+        var(--bg);
+      color: var(--text);
+      font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 72px; }
+    header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+    .eyebrow { color: var(--green); font-size: .78rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 8px 0 8px; font-size: clamp(2.1rem, 5vw, 4rem); line-height: 1.02; letter-spacing: -.04em; }
+    .subtitle { color: var(--muted); max-width: 660px; margin: 0; }
+    .status-dot { width: 10px; height: 10px; background: var(--green); border-radius: 50%; box-shadow: 0 0 18px var(--green); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 32px 0; }
+    .metric, .panel, .source { background: linear-gradient(145deg, var(--panel-2), var(--panel)); border: 1px solid var(--border); border-radius: 16px; }
+    .metric { padding: 16px; }
+    .metric span { color: var(--muted); display: block; font-size: .78rem; }
+    .metric strong { font-size: 1.6rem; }
+    .panel { padding: 24px; }
+    label { display: block; margin-bottom: 10px; font-weight: 700; }
+    textarea {
+      width: 100%; min-height: 116px; resize: vertical; border-radius: 12px; border: 1px solid var(--border);
+      background: #090d0a; color: var(--text); padding: 14px; font: inherit;
+    }
+    textarea:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    button {
+      border: 1px solid var(--green); border-radius: 10px; padding: 11px 18px;
+      background: transparent; color: var(--green); font: inherit; font-weight: 800; cursor: pointer;
+    }
+    button.primary { background: var(--green); color: #071000; }
+    button:disabled { opacity: .5; cursor: wait; }
+    .result { margin-top: 20px; padding: 18px; border-left: 3px solid var(--green); background: #0d140e; border-radius: 0 12px 12px 0; display: none; }
+    .result.visible { display: block; }
+    .result.error { border-color: var(--danger); color: var(--danger); }
+    .sources { display: grid; gap: 12px; margin-top: 16px; }
+    .source { padding: 16px; }
+    .source-head { display: flex; justify-content: space-between; gap: 12px; color: var(--green); font-size: .84rem; }
+    .source p { margin: 10px 0 0; color: var(--muted); }
+    .footer { color: var(--muted); font-size: .85rem; margin-top: 30px; }
+    @media (max-width: 720px) {
+      main { padding-top: 28px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">NVIDIA portfolio project</div>
+        <h1>RAG Lab</h1>
+        <p class="subtitle">Grounded document search with reproducible retrieval evaluation. Local retrieval works without an API key; NVIDIA generation activates when credentials are configured.</p>
+      </div>
+      <div class="status-dot" title="Local service online"></div>
+    </header>
+
+    <section class="metrics" aria-label="Evaluation metrics">
+      <div class="metric"><span>Evaluation cases</span><strong id="case-count">—</strong></div>
+      <div class="metric"><span>Hit rate@3</span><strong id="hit-rate">—</strong></div>
+      <div class="metric"><span>MRR</span><strong id="mrr">—</strong></div>
+      <div class="metric"><span>Term accuracy</span><strong id="term-accuracy">—</strong></div>
+    </section>
+
+    <section class="panel">
+      <label for="question">Ask the local document collection</label>
+      <textarea id="question">How does the project reduce unsupported answers?</textarea>
+      <div class="actions">
+        <button class="primary" id="search">Search passages</button>
+        <button id="ask">Ask NVIDIA</button>
+      </div>
+      <div class="result" id="result" role="status" aria-live="polite"></div>
+      <div class="sources" id="sources"></div>
+    </section>
+
+    <p class="footer">Documents are untrusted context. Verify answers against the displayed source passages. Server binds to localhost by default.</p>
+  </main>
+
+  <script>
+    const question = document.querySelector('#question');
+    const result = document.querySelector('#result');
+    const sources = document.querySelector('#sources');
+    const searchButton = document.querySelector('#search');
+    const askButton = document.querySelector('#ask');
+
+    async function loadMetrics() {
+      try {
+        const response = await fetch('/api/metrics');
+        const data = await response.json();
+        document.querySelector('#case-count').textContent = data.cases;
+        document.querySelector('#hit-rate').textContent = data.hit_rate_at_k.toFixed(2);
+        document.querySelector('#mrr').textContent = data.mrr.toFixed(2);
+        document.querySelector('#term-accuracy').textContent = data.term_accuracy.toFixed(2);
+      } catch {
+        result.textContent = 'Could not load evaluation metrics.';
+        result.className = 'result visible error';
+      }
+    }
+
+    function showResult(message, isError = false) {
+      result.textContent = message;
+      result.className = `result visible${isError ? ' error' : ''}`;
+    }
+
+    function showSources(items) {
+      sources.replaceChildren();
+      for (const item of items) {
+        const card = document.createElement('article');
+        card.className = 'source';
+        const head = document.createElement('div');
+        head.className = 'source-head';
+        const source = document.createElement('span');
+        source.textContent = `[${item.rank}] ${item.source}`;
+        const score = document.createElement('span');
+        score.textContent = `score ${item.score.toFixed(3)}`;
+        head.append(source, score);
+        const text = document.createElement('p');
+        text.textContent = item.text;
+        card.append(head, text);
+        sources.append(card);
+      }
+    }
+
+    async function search() {
+      const value = question.value.trim();
+      if (!value) return showResult('Enter a question.', true);
+      searchButton.disabled = true;
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(value)}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        showResult(`Retrieved ${data.sources.length} relevant passages.`);
+        showSources(data.sources);
+      } catch (error) {
+        showResult(error.message, true);
+      } finally {
+        searchButton.disabled = false;
+      }
+    }
+
+    async function ask() {
+      const value = question.value.trim();
+      if (!value) return showResult('Enter a question.', true);
+      askButton.disabled = true;
+      showResult('Calling the configured NVIDIA endpoint…');
+      try {
+        const response = await fetch('/api/ask', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({question: value}),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          if (data.sources) showSources(data.sources);
+          throw new Error(data.error);
+        }
+        showResult(data.answer);
+        showSources(data.sources);
+      } catch (error) {
+        showResult(error.message, true);
+      } finally {
+        askButton.disabled = false;
+      }
+    }
+
+    searchButton.addEventListener('click', search);
+    askButton.addEventListener('click', ask);
+    loadMetrics();
+  </script>
+</body>
+</html>
