@@ -32,7 +32,8 @@ paragraph chunks -> BM25-style lexical ranking -> grounded prompt
 Requirements: Python 3.10 or newer and an NVIDIA API key from the NVIDIA API Catalog.
 
 ```bash
-cd outputs/nvidia-rag-starter
+git clone https://github.com/dearsoft-bd/nvidia-rag-portfolio.git
+cd nvidia-rag-portfolio
 
 # Test retrieval without a key or network call
 python3 rag_cli.py --demo --question "How does this project reduce unsupported answers?"
@@ -112,8 +113,13 @@ inference. Use NVIDIA's remote API for model calls or a newer GPU when available
 1. Ingest PDFs and preserve page numbers as citation metadata.
 2. Add an embedding-based retriever and compare it with this keyword baseline.
 3. Expand the evaluation set and record retrieval metrics for every change.
-4. Build a small web interface.
-5. Record a two-minute demo and link it from your resume.
+4. Record a two-minute demo and link it from your resume.
+5. Add an evaluation dashboard for latency and source-level accuracy.
+
+## Training completed
+
+- NVIDIA SONiC Essentials by NVIDIA — November 2026
+- NVIDIA Cumulus Linux Essentials — November 2026
 
 ## Safety
 
