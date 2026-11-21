@@ -24,18 +24,51 @@ The wider DS-Pythone ecosystem includes:
 - Automated tests
 - Clear setup instructions and reproducible evidence
 
+## Verified results
+
+- **11 of 11 automated tests pass**
+- **Hit rate@3: 1.00** across the five-case retrieval evaluation set
+- **MRR: 1.00**
+- **Top-result term accuracy: 1.00**
+- The local web interface and citation search were verified on both the
+  development laptop and the Ubuntu GPU PC.
+
+These results describe the small, versioned evaluation set in this repository. They
+are retrieval checks, not claims of production-scale benchmark performance.
+
 ## Architecture
 
 ```text
-docs/*.md
-   |
-   v
-paragraph chunks -> BM25-style lexical ranking -> grounded prompt
-                                                -> NVIDIA NIM API
-                                                -> cited answer + sources
+Markdown/text documents
+          |
+          v
+paragraph chunks -> BM25-style ranking -> top-K evidence
+                                             |
+                                             v
+                                  grounded prompt + citations
+                                             |
+                                             v
+                                  OpenAI-compatible API client
+                                             |
+                                             v
+                                  answer + inspectable sources
 ```
 
-![NVIDIA RAG Lab interface](docs/screenshot.png)
+The interface is intentionally local-first: retrieval, evaluation and tests work
+without a model credential. The hosted generation path activates only when a model
+and credential are configured.
+
+[Read the architecture decisions and trust boundaries](docs/architecture.md).
+
+![DS-Pythone RAG Lab interface](docs/screenshot.png)
+
+## Two-minute demo
+
+- [Watch the demo](docs/demo.mp4)
+- [Demo script and recording plan](portfolio/demo-script.md)
+
+The recording demonstrates local retrieval, cited evidence and the reproducible
+evaluation metrics without exposing credentials or private documents.
 
 ## Quick start
 
@@ -116,6 +149,15 @@ The evaluation reports hit rate at K, mean reciprocal rank and top-result term
 accuracy. It exits with a non-zero status when retrieval quality drops below the
 configured baseline.
 
+Current baseline:
+
+```text
+cases:          5
+hit rate@3:     1.0
+MRR:            1.0
+term accuracy:  1.0
+```
+
 ## GPU PC workflow
 
 The project is also available on the Ubuntu GPU PC at:
@@ -148,6 +190,34 @@ inference. Use NVIDIA's remote API for model calls or a newer GPU when available
 
 - NVIDIA SONiC Essentials by NVIDIA — November 2026
 - NVIDIA Cumulus Linux Essentials — November 2026
+
+## Google Cloud credentials
+
+The portfolio owner has earned the following free Google Skills credentials:
+
+- [Introduction to Image Generation](https://www.skills.google/public_profiles/a56ebf0a-177f-4086-800c-4bc15e527b7b/badges/29798662)
+- [Introduction to Generative AI](https://www.skills.google/public_profiles/a56ebf0a-177f-4086-800c-4bc15e527b7b/badges/29789615)
+- [Responsible AI: Applying AI Principles with Google Cloud](https://www.skills.google/public_profiles/a56ebf0a-177f-4086-800c-4bc15e527b7b/badges/29785985)
+- [Prompt Design in Agent Platform](https://www.skills.google/public_profiles/a56ebf0a-177f-4086-800c-4bc15e527b7b/badges/29779106)
+
+[![Introduction to Image Generation badge](docs/credentials/image-generation.png)](https://www.skills.google/public_profiles/a56ebf0a-177f-4086-800c-4bc15e527b7b/badges/29798662)
+
+These are Google Cloud completion/skill badges, not formal professional
+certifications.
+
+## Résumé-ready project bullets
+
+- Built a local-first Python document assistant with paragraph chunking, BM25-style
+  retrieval, source-grounded prompts and inspectable citations.
+- Achieved a **1.00 hit rate@3**, **1.00 MRR** and **1.00 term accuracy** on a
+  five-case evaluation set, with **11/11 automated tests passing**.
+- Delivered both CLI and localhost web interfaces while keeping credentials out of
+  source control and retrieved documents untrusted.
+- Studied diffusion-model fundamentals and responsible prompting through verified
+  Google Cloud credentials relevant to image-generation and AI SaaS workflows.
+
+The full résumé-ready project section is available at
+[`portfolio/resume-ds-pythone.md`](portfolio/resume-ds-pythone.md).
 
 ## Safety
 
